@@ -1,16 +1,82 @@
-\documentclass{article}
-\usepackage{graphicx} % Required for inserting images
+\documentclass[conference]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
 
-\title{ Capacitor Charging}
-\author{Pina cammisano}
-\date{September 4, 2026}
+\title{Capacitor Charging and a Power On Reset
+for an Active Low Microcontroller}
+
+\author{
+\IEEEauthorblockN{Pina Cammisano}
+\IEEEauthorblockA{Department of Computer Engineering Technology\\
+Vanier College}
+}
 
 \begin{document}
 \maketitle
 
+\begin{abstract}
+This document introduces the charging behaviour of a resistor-capacitor (RC) network, examines the capacitor voltage at one time constant, and applies the same charging behaviour to a power-on-reset circuit for an active-low microcontroller.
+\end{abstract}
+
 \section{Introduction}
-This document introduces the charging behavior of a resistor-capacitor (RC) network.When a capacitor C is charged through a series resistor R from a constant supply $V_0$, the capacitor voltage rises according to
+
+When a capacitor $C$ is charged through a series resistor $R$ from a constant supply $V_0$, the capacitor voltage rises according to
 \[V(t) = V_0 \left(1 - e^{-t/RC}\right)\]
-where the product RC has units of second and is called the time constant, T = RC
+where $V_0$ is the supply voltage, $R$ is the resistance, and $C$ is the capacitance. The product $RC$ is called the time constant,
+\[\tau = RC\]
+After one time constant, the capacitor reaches approximately 63.2\% of the supply voltage.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/generated/rc_charging.pdf}
+\caption{Capacitor charging for different resistance values.}
+\label{fig:rc}
+\end{figure}
+
+\section{Voltage at the Time Constant}
+
+Starting from the charging equation,
+\[V(t) = V_0 \left(1 - e^{-t/RC}\right)\]
+and substituting $t = \tau$,
+\[V(\tau) = V_0 \left(1 - e^{-\tau/RC}\right)\]
+Since $\tau = RC$,
+\[V(\tau) = V_0 \left(1 - e^{-RC/RC}\right)\]
+\[V(\tau) = V_0 \left(1 - e^{-1}\right)\]
+\[V(\tau) \approx 0.632V_0\]
+For $V_0 = 5.0$ V,
+\[V(\tau) \approx 0.632 \times 5.0\]
+\[V(\tau) \approx 3.16\text{ V}\]
+\section{Power On Reset with an Active Low Reset}
+
+A power-on-reset circuit can be used to hold a microcontroller in reset while the supply voltage is first turning on. In this circuit, the capacitor charges through the resistor. The active-low reset pin remains low while the capacitor voltage is below the input-high threshold $V_{IH}$. Once the capacitor voltage crosses $V_{IH}$, the reset is released and the microcontroller can begin operating.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/drawn/por_circuit.pdf}
+\caption{RC power-on-reset network driving an active-low reset pin.}
+\label{fig:por}
+\end{figure}
+
+The reset pin releases when the node voltage reaches $V_{IH}$. Starting from
+\[V_{IH} = V_0 \left(1 - e^{-t_{\mathrm{release}}/RC}\right)\]
+divide by $V_0$:
+\[\frac{V_{IH}}{V_0}=1-e^{-t_{\mathrm{release}}/RC}\]
+Rearranging,
+\[e^{-t_{\mathrm{release}}/RC}=1-\frac{V_{IH}}{V_0}\]
+Taking the natural logarithm,
+\[-\frac{t_{\mathrm{release}}}{RC}=\ln\left(1-\frac{V_{IH}}{V_0}\right)\]
+Therefore,
+\[t_{\mathrm{release}}=-RC\ln\left(1-\frac{V_{IH}}{V_0}\right)\]
+Solving for $R$ gives
+\[R =\frac{-t_{\mathrm{release}}}{C\ln\left(1-\frac{V_{IH}}{V_0}\right)}\]
+For the worked example, let
+\[V_{IH} = 0.7V_0\]
+with $V_0 = 5.0$ V, $t_{\mathrm{release}} = 10$ ms, and $C = 100$ nF.
+\[\ln(1-0.7)=\ln(0.3)\approx -1.204\]
+Therefore,
+\[R =\frac{-(10\times10^{-3})}{(100\times10^{-9})(-1.204)}\]
+\[R \approx 83\,\text{k}\Omega\]
+An $83\,\text{k}\Omega$ resistor with a $100$ nF capacitor gives a reset hold-off of approximately 10 ms.
 
 \end{document}
