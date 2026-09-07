@@ -16,67 +16,261 @@ Vanier College}
 \maketitle
 
 \begin{abstract}
-This document introduces the charging behaviour of a resistor-capacitor (RC) network, examines the capacitor voltage at one time constant, and applies the same charging behaviour to a power-on-reset circuit for an active-low microcontroller.
+This document introduces the charging behaviour of a resistor-capacitor
+(RC) network and applies the same charging behaviour to a power-on-reset
+circuit for an active-low microcontroller.
 \end{abstract}
+
 
 \section{Introduction}
 
-When a capacitor $C$ is charged through a series resistor $R$ from a constant supply $V_0$, the capacitor voltage rises according to
-\[V(t) = V_0 \left(1 - e^{-t/RC}\right)\]
-where $V_0$ is the supply voltage, $R$ is the resistance, and $C$ is the capacitance. The product $RC$ is called the time constant,
-\[\tau = RC\]
-After one time constant, the capacitor reaches approximately 63.2\% of the supply voltage.
+When a capacitor $C$ is charged through a series resistor $R$ from a
+constant supply $V_0$, the capacitor voltage rises according to
+
+\begin{equation}
+V(t)=V_0\left(1-e^{-t/RC}\right)
+\label{eq:charging}
+\end{equation}
+
+The product $RC$ is called the time constant,
+
+\begin{equation}
+\tau=RC.
+\label{eq:tau}
+\end{equation}
+
+After one time constant, the capacitor reaches approximately 63.2\%
+of the supply voltage.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/generated/rc_charging.pdf}
+\includegraphics[width=\columnwidth]
+{figures/generated/rc_charging.pdf}
 \caption{Capacitor charging for different resistance values.}
 \label{fig:rc}
 \end{figure}
 
+
 \section{Voltage at the Time Constant}
 
-Starting from the charging equation,
-\[V(t) = V_0 \left(1 - e^{-t/RC}\right)\]
-and substituting $t = \tau$,
-\[V(\tau) = V_0 \left(1 - e^{-\tau/RC}\right)\]
-Since $\tau = RC$,
-\[V(\tau) = V_0 \left(1 - e^{-RC/RC}\right)\]
-\[V(\tau) = V_0 \left(1 - e^{-1}\right)\]
-\[V(\tau) \approx 0.632V_0\]
-For $V_0 = 5.0$ V,
-\[V(\tau) \approx 0.632 \times 5.0\]
-\[V(\tau) \approx 3.16\text{ V}\]
+Starting from \eqref{eq:charging} and substituting $t=\tau$,
+
+\begin{align}
+V(\tau)
+&=V_0\left(1-e^{-\tau/RC}\right) \\
+&=V_0\left(1-e^{-RC/RC}\right) \\
+&=V_0\left(1-e^{-1}\right) \\
+&\approx V_0(1-0.368) \\
+&\approx0.632V_0.
+\end{align}
+
+For $V_0=5.0$ V,
+
+\begin{equation}
+V(\tau)\approx0.632(5.0)\approx3.16\text{ V}.
+\label{eq:vtau}
+\end{equation}
+
+
 \section{Power On Reset with an Active Low Reset}
 
-A power-on-reset circuit can be used to hold a microcontroller in reset while the supply voltage is first turning on. In this circuit, the capacitor charges through the resistor. The active-low reset pin remains low while the capacitor voltage is below the input-high threshold $V_{IH}$. Once the capacitor voltage crosses $V_{IH}$, the reset is released and the microcontroller can begin operating.
+A power-on-reset circuit holds the microcontroller in reset while the
+capacitor charges. The active-low reset pin remains low while the
+capacitor voltage is below the input-high threshold $V_{IH}$. Once the
+voltage crosses $V_{IH}$, the reset is released and the microcontroller
+can begin operating.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/drawn/por_circuit.pdf}
-\caption{RC power-on-reset network driving an active-low reset pin.}
+\includegraphics[width=\columnwidth]
+{figures/drawn/por_circuit.pdf}
+\caption{RC power-on-reset circuit for an active-low reset pin.}
 \label{fig:por}
 \end{figure}
 
-The reset pin releases when the node voltage reaches $V_{IH}$. Starting from
-\[V_{IH} = V_0 \left(1 - e^{-t_{\mathrm{release}}/RC}\right)\]
-divide by $V_0$:
-\[\frac{V_{IH}}{V_0}=1-e^{-t_{\mathrm{release}}/RC}\]
+The reset pin releases when the capacitor voltage reaches $V_{IH}$:
+
+\begin{equation}
+V_{IH}=V_0\left(1-e^{-t_{\mathrm{release}}/RC}\right).
+\end{equation}
+
+Dividing by $V_0$,
+
+\begin{equation}
+\frac{V_{IH}}{V_0}
+=
+1-e^{-t_{\mathrm{release}}/RC}.
+\end{equation}
+
 Rearranging,
-\[e^{-t_{\mathrm{release}}/RC}=1-\frac{V_{IH}}{V_0}\]
+
+\begin{equation}
+e^{-t_{\mathrm{release}}/RC}
+=
+1-\frac{V_{IH}}{V_0}.
+\end{equation}
+
 Taking the natural logarithm,
-\[-\frac{t_{\mathrm{release}}}{RC}=\ln\left(1-\frac{V_{IH}}{V_0}\right)\]
+
+\begin{equation}
+-\frac{t_{\mathrm{release}}}{RC}
+=
+\ln\left(1-\frac{V_{IH}}{V_0}\right).
+\end{equation}
+
 Therefore,
-\[t_{\mathrm{release}}=-RC\ln\left(1-\frac{V_{IH}}{V_0}\right)\]
+
+\begin{equation}
+t_{\mathrm{release}}
+=
+-RC\ln\left(1-\frac{V_{IH}}{V_0}\right).
+\label{eq:release}
+\end{equation}
+
 Solving for $R$ gives
-\[R =\frac{-t_{\mathrm{release}}}{C\ln\left(1-\frac{V_{IH}}{V_0}\right)}\]
-For the worked example, let
-\[V_{IH} = 0.7V_0\]
-with $V_0 = 5.0$ V, $t_{\mathrm{release}} = 10$ ms, and $C = 100$ nF.
-\[\ln(1-0.7)=\ln(0.3)\approx -1.204\]
-Therefore,
-\[R =\frac{-(10\times10^{-3})}{(100\times10^{-9})(-1.204)}\]
-\[R \approx 83\,\text{k}\Omega\]
-An $83\,\text{k}\Omega$ resistor with a $100$ nF capacitor gives a reset hold-off of approximately 10 ms.
+
+\begin{equation}
+R=
+\frac{-t_{\mathrm{release}}}
+{C\ln\left(1-\frac{V_{IH}}{V_0}\right)}.
+\label{eq:rvalue}
+\end{equation}
+
+For $V_{IH}=0.7V_0$, $t_{\mathrm{release}}=10$ ms, and
+$C=100$ nF,
+
+\begin{equation}
+\ln(1-0.7)=\ln(0.3)\approx-1.204.
+\end{equation}
+
+Using \eqref{eq:rvalue},
+
+\begin{equation}
+R=
+\frac{-(10\times10^{-3})}
+{(100\times10^{-9})(-1.204)}
+\approx83\,\text{k}\Omega.
+\end{equation}
+
+An $83\,\text{k}\Omega$ resistor with a $100$ nF capacitor gives a
+reset hold-off of approximately 10 ms.
+
+
+\section{Applications and Limitations}
+
+\subsection{Application}
+
+A low-cost temperature sensor node is a suitable application for an
+RC-only power-on-reset circuit. It only needs a short delay when power
+is first applied and does not require precise reset timing, brown-out
+detection, or re-triggering.
+
+For this application,
+
+\begin{equation}
+R=10\,\text{k}\Omega,\qquad C=220\,\text{nF}.
+\end{equation}
+
+Assuming $V_{IH}=0.7V_0$ and using \eqref{eq:release},
+
+\begin{equation}
+t_{\mathrm{release}}
+=-(10\times10^3)(220\times10^{-9})\ln(0.3)
+\approx2.65\,\text{ms}.
+\end{equation}
+
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]
+{figures/generated/rc_tolerance.pdf}
+\caption{Nominal, fastest, and slowest RC charging curves.}
+\label{fig:tolerance}
+\end{figure}
+
+
+\subsection{Limitations}
+
+One limitation is component tolerance. The actual resistor and
+capacitor values can vary from their nominal values, which changes the
+reset timing.
+
+A second limitation is a slowly rising supply voltage. If $V_{CC}$
+rises slowly, the reset pin can remain near its threshold and may not
+produce a clean reset.
+
+A third limitation is that the RC circuit does not provide brown-out
+detection. If the supply voltage drops after startup, the circuit may
+not reset the microcontroller.
+
+
+\subsection{Component Tolerance}
+
+For this design, a $10\,\text{k}\Omega$ resistor with a tolerance of
+$\pm1\%$ and a $220\,\text{nF}$ capacitor with a tolerance of
+$\pm10\%$ are used.
+
+Since \eqref{eq:release} can be written as
+
+\begin{equation}
+t_{\mathrm{release}}=kRC,
+\end{equation}
+
+where
+
+\begin{equation}
+k=-\ln\left(1-\frac{V_{IH}}{V_0}\right),
+\end{equation}
+
+the effect of changes in $R$ and $C$ can be written as
+
+\begin{align}
+t+\Delta t
+&=k(R+\Delta R)(C+\Delta C) \\
+&=kRC+kR\Delta C+kC\Delta R+k\Delta R\Delta C.
+\end{align}
+
+Ignoring the second-order term,
+
+\begin{equation}
+t+\Delta t
+\approx
+kRC+kR\Delta C+kC\Delta R.
+\end{equation}
+
+Dividing by $t=kRC$ gives
+
+\begin{equation}
+\frac{\Delta t}{t}
+\approx
+\frac{\Delta R}{R}
++
+\frac{\Delta C}{C}.
+\label{eq:tolerance}
+\end{equation}
+
+Using the component tolerances,
+
+\begin{equation}
+\frac{\Delta t}{t}
+\approx0.01+0.10=0.11.
+\end{equation}
+
+Therefore, the approximate timing tolerance is $\pm11\%$.
+
+Using the nominal release time of $2.65$ ms,
+
+\begin{equation}
+t_{\min}\approx2.65(1-0.11)\approx2.36\,\text{ms},
+\end{equation}
+
+and
+
+\begin{equation}
+t_{\max}\approx2.65(1+0.11)\approx2.94\,\text{ms}.
+\end{equation}
+
+Therefore, the reset release time is approximately between
+$2.36$ ms and $2.94$ ms.
 
 \end{document}
